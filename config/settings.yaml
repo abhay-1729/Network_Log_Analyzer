@@ -1,0 +1,112 @@
+# ============================================================
+# NetSentinel - Network Log Analyzer & Intrusion Detection System
+# Configuration File
+# ============================================================
+
+general:
+  app_name: "NetSentinel"
+  version: "1.0.0"
+  log_level: "INFO"                    # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  timezone: "UTC"
+  max_workers: 4                       # Parallel processing threads
+
+# --- Input Configuration ---
+input:
+  log_directory: "data/logs"           # Directory containing network logs
+  supported_formats:
+    - "csv"
+    - "json"
+    - "syslog"
+    - "pcap_summary"
+  watch_mode: false                    # Enable real-time file watching
+  watch_interval_seconds: 5
+
+# --- Detection Engine Configuration ---
+detection:
+  # Rule-based detection
+  rules_file: "config/detection_rules.yaml"
+  
+  # Thresholds
+  thresholds:
+    port_scan:
+      unique_ports: 15                 # Unique ports accessed from single IP within window
+      time_window_seconds: 60
+    
+    brute_force:
+      failed_attempts: 5              # Failed login attempts before alert
+      time_window_seconds: 300
+    
+    ddos:
+      requests_per_second: 1000       # Requests/sec threshold
+      unique_sources: 50              # Min distinct IPs for DDoS classification
+      time_window_seconds: 10
+    
+    data_exfiltration:
+      outbound_bytes_threshold: 104857600  # 100 MB
+      time_window_seconds: 3600
+    
+    beaconing:
+      min_connections: 10             # Min periodic connections
+      interval_tolerance_percent: 15  # Allowed jitter in beacon interval
+      time_window_seconds: 3600
+    
+    unusual_hours:
+      start_hour: 0                   # Unusual activity window start (midnight)
+      end_hour: 5                     # Unusual activity window end (5 AM)
+      min_events: 20                  # Min events in unusual hours to flag
+
+  # Anomaly detection (statistical)
+  anomaly:
+    enabled: true
+    sensitivity: "medium"             # low, medium, high
+    baseline_days: 7                  # Days of data for baseline calculation
+    z_score_threshold: 3.0            # Standard deviations from mean
+
+# --- Threat Intelligence ---
+threat_intel:
+  enabled: true
+  malicious_ips_file: "config/threat_feeds/malicious_ips.txt"
+  malicious_domains_file: "config/threat_feeds/malicious_domains.txt"
+  tor_exit_nodes_file: "config/threat_feeds/tor_exit_nodes.txt"
+  update_interval_hours: 24
+
+# --- Alert Configuration ---
+alerts:
+  severity_levels:
+    - "LOW"
+    - "MEDIUM"
+    - "HIGH"
+    - "CRITICAL"
+  
+  min_severity: "LOW"                 # Minimum severity to report
+  
+  # Alert outputs
+  console_output: true
+  file_output: true
+  alert_log_file: "output/alerts/alerts.json"
+  
+  # Deduplication
+  dedup_window_seconds: 300           # Suppress duplicate alerts within window
+  max_alerts_per_source: 100          # Max alerts per source IP before aggregation
+
+# --- Reporting ---
+reporting:
+  output_directory: "output/reports"
+  formats:
+    - "html"
+    - "json"
+  include_visualizations: true
+  top_n_entries: 20                   # Top N items in summary tables
+  
+  # Visualization settings
+  charts:
+    color_scheme: "security"          # security, dark, light
+    dpi: 150
+    figure_size: [12, 6]
+
+# --- Logging ---
+logging:
+  directory: "output/app_logs"
+  max_file_size_mb: 50
+  backup_count: 5
+  format: "%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s"

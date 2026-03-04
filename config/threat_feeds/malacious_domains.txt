@@ -1,0 +1,38 @@
+# Known Malicious Domains - Threat Intelligence Feed
+# Format: one domain per line
+# Last Updated: 2026-02-24
+evil-malware.com
+phishing-site.net
+c2-server.xyz
+data-stealer.org
+ransomware-pay.com
+bad-actor.net
+exploit-kit.biz
+malware-drop.info
+
+# Known Malicious IPs - Threat Intelligence Feed
+# Format: one IP per line
+# Last Updated: 2026-02-24
+# Source: Aggregated from open threat feeds
+198.51.100.23
+203.0.113.45
+192.0.2.100
+198.51.100.78
+203.0.113.99
+192.0.2.200
+198.51.100.150
+203.0.113.201
+10.99.99.1
+172.16.99.99
+
+
+# Known TOR Exit Nodes
+# Format: one IP per line
+# Last Updated: 2026-02-24
+185.220.101.1
+185.220.101.2
+185.220.101.3
+199.249.230.10
+199.249.230.11
+204.85.191.30
+204.85.191.31

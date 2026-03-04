@@ -1,0 +1,191 @@
+# ============================================================
+# NetSentinel - Detection Rules
+# Each rule defines a signature-based detection pattern
+# ============================================================
+
+rules:
+  # --- Port Scanning Rules ---
+  - id: "RULE-001"
+    name: "TCP SYN Port Scan"
+    description: "Detects TCP SYN scanning activity (sequential port probing)"
+    category: "reconnaissance"
+    severity: "HIGH"
+    enabled: true
+    conditions:
+      protocol: "TCP"
+      flags: ["SYN"]
+      unique_dst_ports_min: 15
+      time_window_seconds: 60
+    action: "alert"
+
+  - id: "RULE-002"
+    name: "UDP Port Scan"
+    description: "Detects UDP port scanning activity"
+    category: "reconnaissance"
+    severity: "MEDIUM"
+    enabled: true
+    conditions:
+      protocol: "UDP"
+      unique_dst_ports_min: 20
+      time_window_seconds: 60
+    action: "alert"
+
+  # --- Brute Force Rules ---
+  - id: "RULE-003"
+    name: "SSH Brute Force"
+    description: "Multiple failed SSH authentication attempts"
+    category: "brute_force"
+    severity: "HIGH"
+    enabled: true
+    conditions:
+      dst_port: 22
+      protocol: "TCP"
+      action: "failed"
+      count_min: 5
+      time_window_seconds: 300
+    action: "alert"
+
+  - id: "RULE-004"
+    name: "RDP Brute Force"
+    description: "Multiple failed RDP authentication attempts"
+    category: "brute_force"
+    severity: "HIGH"
+    enabled: true
+    conditions:
+      dst_port: 3389
+      protocol: "TCP"
+      action: "failed"
+      count_min: 5
+      time_window_seconds: 300
+    action: "alert"
+
+  - id: "RULE-005"
+    name: "HTTP Login Brute Force"
+    description: "Multiple failed HTTP login attempts (401/403 responses)"
+    category: "brute_force"
+    severity: "MEDIUM"
+    enabled: true
+    conditions:
+      dst_port: [80, 443, 8080, 8443]
+      protocol: "TCP"
+      status_code: [401, 403]
+      count_min: 10
+      time_window_seconds: 600
+    action: "alert"
+
+  # --- DDoS Rules ---
+  - id: "RULE-006"
+    name: "Volumetric DDoS"
+    description: "High volume of traffic from multiple sources to single destination"
+    category: "ddos"
+    severity: "CRITICAL"
+    enabled: true
+    conditions:
+      requests_per_second_min: 1000
+      unique_src_ips_min: 50
+      time_window_seconds: 10
+    action: "alert"
+
+  - id: "RULE-007"
+    name: "SYN Flood"
+    description: "Excessive SYN packets without completing handshake"
+    category: "ddos"
+    severity: "CRITICAL"
+    enabled: true
+    conditions:
+      protocol: "TCP"
+      flags: ["SYN"]
+      syn_to_synack_ratio_min: 5.0
+      time_window_seconds: 30
+    action: "alert"
+
+  # --- Suspicious Activity Rules ---
+  - id: "RULE-008"
+    name: "Known Malicious IP Contact"
+    description: "Communication with known malicious IP address"
+    category: "threat_intel"
+    severity: "CRITICAL"
+    enabled: true
+    conditions:
+      check_threat_feed: true
+    action: "alert"
+
+  - id: "RULE-009"
+    name: "DNS Tunneling Suspected"
+    description: "Unusually long DNS queries suggesting DNS tunneling"
+    category: "exfiltration"
+    severity: "HIGH"
+    enabled: true
+    conditions:
+      protocol: "UDP"
+      dst_port: 53
+      query_length_min: 50
+      frequency_per_minute_min: 30
+    action: "alert"
+
+  - id: "RULE-010"
+    name: "Large Data Transfer - Outbound"
+    description: "Unusually large outbound data transfer"
+    category: "exfiltration"
+    severity: "HIGH"
+    enabled: true
+    conditions:
+      direction: "outbound"
+      bytes_transferred_min: 104857600  # 100 MB
+      time_window_seconds: 3600
+    action: "alert"
+
+  - id: "RULE-011"
+    name: "C2 Beaconing Pattern"
+    description: "Regular periodic connections suggesting Command & Control beaconing"
+    category: "c2"
+    severity: "CRITICAL"
+    enabled: true
+    conditions:
+      min_connections: 10
+      interval_regularity_min: 0.85
+      time_window_seconds: 3600
+    action: "alert"
+
+  - id: "RULE-012"
+    name: "Unusual Port Usage"
+    description: "Standard protocol on non-standard port (protocol mismatch)"
+    category: "evasion"
+    severity: "MEDIUM"
+    enabled: true
+    conditions:
+      protocol_port_mismatch: true
+    action: "alert"
+
+  - id: "RULE-013"
+    name: "After-Hours Network Activity"
+    description: "Significant network activity during unusual hours"
+    category: "insider_threat"
+    severity: "MEDIUM"
+    enabled: true
+    conditions:
+      time_range: ["00:00", "05:00"]
+      min_events: 20
+    action: "alert"
+
+  - id: "RULE-014"
+    name: "TOR Exit Node Communication"
+    description: "Traffic to/from known TOR exit nodes"
+    category: "anonymization"
+    severity: "HIGH"
+    enabled: true
+    conditions:
+      check_tor_nodes: true
+    action: "alert"
+
+  - id: "RULE-015"
+    name: "ICMP Flood"
+    description: "Excessive ICMP traffic indicating potential ping flood"
+    category: "ddos"
+    severity: "HIGH"
+    enabled: true
+    conditions:
+      protocol: "ICMP"
+      packets_per_second_min: 500
+      time_window_seconds: 10
+    action: "alert"

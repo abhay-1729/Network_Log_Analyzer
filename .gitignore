@@ -1,0 +1,32 @@
+# Byte-complied / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual enviornments
+venv/
+.venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Output (generated at runtime)
+output/
+data/logs/*.csv
+data/logs/*.json
+data/logs/*.log
+
+# Distribution
+dist/
+build/
+*.egg-info/
